@@ -1,0 +1,82 @@
+@startuml Activity Diagram
+!theme plain
+title Water Regulation Control Flow
+
+start
+
+:Read all sensors\n(pH, DO, Temp, Turbidity, Level);
+
+:Validate sensor readings;
+
+if (Readings valid?) then (no)
+    :Log error;
+    :Send sensor fault alert;
+    stop
+endif
+
+:Check pH level;
+
+if (pH < 6.5) then (yes)
+    :Set pH_LOW alert;
+    :Log pH warning;
+elseif (pH > 8.5) then (yes)
+    :Set pH_HIGH alert;
+    :Log pH warning;
+endif
+
+:Check Dissolved Oxygen;
+
+if (DO < 5.0 mg/L) then (yes)
+    :Turn ON Aerator;
+    :Set DO_LOW critical alert;
+    :Send emergency notification;
+elseif (DO > 9.0 mg/L) then (yes)
+    :Turn OFF Aerator;
+endif
+
+:Check Temperature;
+
+if (Temp < 24°C) then (yes)
+    :Turn ON Heater;
+    :Set TEMP_LOW alert;
+elseif (Temp > 30°C) then (yes)
+    :Turn OFF Heater;
+    :Turn ON Aerator;
+    :Set TEMP_HIGH critical alert;
+else (no)
+    if (Heater was ON) then (yes)
+        :Turn OFF Heater;
+    endif
+endif
+
+:Check Water Level;
+
+if (Level < 0.3m) then (yes)
+    :Open Inlet Valve;
+    :Set LEVEL_LOW critical alert;
+    :Send emergency notification;
+elseif (Level > 1.2m) then (yes)
+    :Close Inlet Valve;
+    :Open Drain Valve;
+    :Set LEVEL_HIGH alert;
+else (no)
+    :Close Drain Valve;
+    :Close Inlet Valve;
+endif
+
+:Check Turbidity;
+
+if (Turbidity > 50 NTU) then (yes)
+    :Turn ON Water Pump;
+    :Set TURBIDITY_HIGH alert;
+elseif (Turbidity < 35 NTU) then (yes)
+    :Turn OFF Water Pump;
+endif
+
+:Publish sensor data\nto MQTT broker;
+:Send updated actuator\nstates to cloud;
+:Update real-time\ndashboard;
+
+stop
+
+@enduml

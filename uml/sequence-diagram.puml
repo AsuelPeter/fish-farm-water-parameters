@@ -1,0 +1,69 @@
+@startuml Sequence Diagram
+!theme plain
+title Sensor Data Collection and Alert Generation Sequence
+
+actor Farmer
+participant "React Dashboard" as UI
+participant "Backend API" as API
+database "MongoDB" as DB
+database "InfluxDB" as Influx
+participant "MQTT Broker" as MQTT
+participant "ESP32 Device" as ESP32
+participant "Sensor" as Sensor
+participant "Actuator" as Actuator
+participant "Email Service" as Email
+
+== Sensor Data Collection ==
+Sensor -> ESP32 : Read analog/digital signal
+ESP32 -> ESP32 : Process raw data
+ESP32 -> MQTT : Publish sensor data\n(JSON payload)
+
+alt MQTT Connected
+    MQTT -> API : Forward message\n(topic: fishfarm/sensors/data)
+    API -> API : Parse JSON data
+    API -> DB : Save sensor reading
+    API -> Influx : Store time-series data
+    API -> API : Check thresholds
+    
+    alt Threshold Exceeded
+        API -> DB : Save alert record
+        API -> Email : Send notification
+        API -> MQTT : Publish alert
+        MQTT -> ESP32 : Send actuator command
+        ESP32 -> Actuator : Toggle pump/aerator/heater
+    end
+    
+    API -> UI : WebSocket emit\n(real-time update)
+    UI -> UI : Update dashboard charts
+else MQTT Disconnected
+    ESP32 -> ESP32 : Buffer data locally
+    ESP32 -> ESP32 : Retry connection
+end
+
+== User Manual Control ==
+Farmer -> UI : Click actuator button
+UI -> API : POST /api/actuators/command
+API -> MQTT : Publish command\n(topic: fishfarm/actuators/command)
+MQTT -> ESP32 : Receive command
+ESP32 -> Actuator : Execute action
+Actuator -> ESP32 : Confirm state change
+ESP32 -> MQTT : Publish status update
+MQTT -> API : Forward status
+API -> UI : WebSocket emit\n(update UI)
+
+== Historical Data Query ==
+Farmer -> UI : Select time period
+UI -> API : GET /api/sensors/history
+API -> DB : Query aggregated data
+DB -> API : Return time-series
+API -> UI : Return chart data
+UI -> UI : Render line charts
+
+== Alert Acknowledgment ==
+Farmer -> UI : Click "Acknowledge"
+UI -> API : PUT /api/alerts/:id/acknowledge
+API -> DB : Update alert status
+API -> UI : Confirm acknowledgment
+UI -> UI : Update alert list
+
+@enduml

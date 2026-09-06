@@ -1,0 +1,83 @@
+@startuml Component Diagram
+!theme plain
+title System Component Diagram
+
+skinparam component {
+    BackgroundColor<<sensor>> #LightBlue
+    BackgroundColor<<edge>> #LightGreen
+    BackgroundColor<<cloud>> #LightYellow
+    BackgroundColor<<frontend>> #LightCoral
+    BackgroundColor<<database>> #LightGray
+}
+
+package "Sensing Layer" <<sensor>> {
+    component [pH Sensor] as pH
+    component [DO Sensor] as DO
+    component [Temperature\nSensor] as Temp
+    component [Turbidity\nSensor] as Turb
+    component [Water Level\nSensor] as Level
+    component [Flow Sensor] as Flow
+}
+
+package "Edge Layer" <<edge>> {
+    component [ESP32\nMicrocontroller] as ESP32 {
+        component [Sensor\nAcquisition] as Acq
+        component [Reference\nModel] as RefModel
+        component [Residual\nGenerator] as ResGen
+        component [Actuator\nControl] as ActCtrl
+        component [MQTT\nClient] as MQTTClient
+    }
+    component [Relay Module] as Relay
+    component [Water Pump] as Pump
+    component [Aerator] as Aer
+    component [Heater] as Heat
+    component [Solenoid\nValves] as Valve
+}
+
+package "Cloud Layer" <<cloud>> {
+    component [MQTT Broker\n(HiveMQ/EMQX)] as Broker
+    component [Node.js\nBackend API] as Backend {
+        component [Express\nServer] as Express
+        component [Socket.IO\nWebSocket] as Socket
+        component [Alert\nService] as AlertSvc
+    }
+    component [React\nFrontend] as Frontend {
+        component [Dashboard\nPage] as Dash
+        component [Sensor\nDetail Page] as SensorPage
+        component [Alerts\nPage] as AlertPage
+        component [Settings\nPage] as SettingsPage
+    }
+}
+
+package "Data Layer" <<database>> {
+    component [MongoDB\n( Documents)] as Mongo
+    component [InfluxDB\n(Time-Series)] as Influx
+}
+
+' Sensor connections
+pH --> ESP32 : Analog
+DO --> ESP32 : Analog
+Temp --> ESP32 : Digital
+Turb --> ESP32 : Analog
+Level --> ESP32 : Analog
+Flow --> ESP32 : Pulse
+
+' Edge connections
+ESP32 --> Relay : GPIO
+Relay --> Pump
+Relay --> Aer
+Relay --> Heat
+Relay --> Valve
+
+' Cloud connections
+MQTTClient --> Broker : Publish/Subscribe\n(MQTT over TCP)
+Broker --> Backend : Forward messages
+Backend --> Mongo : CRUD operations
+Backend --> Influx : Write/Query
+Frontend --> Backend : REST API\n+ WebSocket
+
+' Real-time
+Socket --> Dash : Real-time updates
+Socket --> AlertPage : Alert notifications
+
+@enduml

@@ -1,0 +1,104 @@
+@startuml Deployment Diagram
+!theme plain
+title Deployment Architecture Diagram
+
+skinparam nodeBackgroundColor LightBlue
+skinparam databaseBackgroundColor LightGray
+skinparam cloudBackgroundColor LightYellow
+
+node "Fish Pond Environment" {
+    node "ESP32 DevKit V1" as ESP32 {
+        artifact "firmware.bin" as FW
+        component "Sensor\nInterface" as SI
+        component "MQTT\nClient" as MC
+        component "Actuator\nDriver" as AD
+    }
+
+    database "Local Buffer\n(RAM)" as LocalBuf
+
+    collections "Sensors" as Sensors
+    collections "Relays + Actuators" as Actuators
+
+    Sensors --> SI : ADC/Digital
+    SI --> MC : Processed data
+    MC --> LocalBuf : Buffer
+    AD --> Actuators : GPIO
+}
+
+node "Home/Office Network" {
+    node "WiFi Router" as Router
+}
+
+node "Cloud Infrastructure" {
+    node "MQTT Broker" as MQTTBroker {
+        component "Mosquitto /\nHiveMQ" as MQTTServer
+    }
+
+    node "Backend Server\n(Node.js + Express)" as Server {
+        artifact "server.js" as ServerApp
+        component "REST API" as API
+        component "WebSocket\n(Socket.IO)" as WS
+        component "Alert\nProcessor" as AlertProc
+    }
+
+    database "MongoDB\n(Document Store)" as MongoDB
+    database "InfluxDB\n(Time-Series)" as InfluxDB
+
+    node "CDN / Vercel" as Vercel {
+        artifact "React App\n(Static Build)" as ReactApp
+    }
+}
+
+node "User Devices" {
+    device "Laptop /\nDesktop" as PC
+    device "Smartphone" as Phone
+    device "Tablet" as Tablet
+}
+
+cloud "Email Service\n(SMTP)" as EmailCloud
+cloud "SMS Gateway\n(Twilio)" as SMSCloud
+
+' Network connections
+ESP32 --> Router : WiFi (2.4GHz)
+Router --> MQTTBroker : Internet\n(TCP 1883)
+Router --> Server : Internet\n(HTTP 5000)
+
+' Cloud connections
+MQTTBroker --> Server : Forward\nsensor data
+Server --> MongoDB : Store documents
+Server --> InfluxDB : Store time-series
+Server --> AlertProc : Trigger alerts
+AlertProc --> EmailCloud : Email alerts
+AlertProc --> SMSCloud : SMS alerts
+
+' Frontend
+PC --> Vercel : HTTPS
+Phone --> Vercel : HTTPS
+Tablet --> Vercel : HTTPS
+Vercel --> Server : REST API calls
+Vercel --> Server : WebSocket connection
+
+' Data flow
+note right of ESP32
+    Runs at ~1 Hz
+    Sensors → Process
+    → MQTT Publish
+    Receive commands
+    → Actuate
+end note
+
+note bottom of Server
+    Receives MQTT messages
+    Stores in databases
+    Processes alerts
+    Serves API + WebSocket
+end note
+
+note right of Vercel
+    Static React build
+    Real-time dashboard
+    Responsive design
+    Hosted on Vercel
+end note
+
+@enduml

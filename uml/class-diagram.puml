@@ -1,0 +1,209 @@
+@startuml Class Diagram
+!theme plain
+title System Class Diagram
+
+skinparam classAttributeIconSize 0
+
+package "Backend Models" {
+    class SensorData {
+        -pondId: String
+        -deviceId: String
+        -ph: Float
+        -dissolvedOxygen: Float
+        -temperature: Float
+        -turbidity: Float
+        -waterLevel: Float
+        -flowRate: Float
+        -timestamp: Date
+        -actuators: ActuatorState
+        +save(): void
+        +findByPond(pondId): List
+    }
+
+    class Alert {
+        -pondId: String
+        -deviceId: String
+        -type: AlertType
+        -severity: Severity
+        -message: String
+        -readings: SensorReadings
+        -acknowledged: Boolean
+        -acknowledgedBy: String
+        +acknowledge(user): void
+        +resolve(): void
+    }
+
+    class User {
+        -name: String
+        -email: String
+        -password: String
+        -role: UserRole
+        -phone: String
+        -ponds: List
+        +comparePassword(pwd): Boolean
+        +generateToken(): String
+    }
+
+    class Pond {
+        -pondId: String
+        -name: String
+        -dimensions: Dimensions
+        -fishSpecies: String
+        -thresholds: Thresholds
+        -owner: User
+        +updateLastReading(data): void
+    }
+
+    class Device {
+        -deviceId: String
+        -name: String
+        -type: DeviceType
+        -status: DeviceStatus
+        -lastSeen: Date
+        -sensors: SensorConfig
+        -actuators: ActuatorConfig
+        +updateLastSeen(): void
+        +isOnline(): Boolean
+    }
+
+    enum AlertType {
+        PH_LOW
+        PH_HIGH
+        DO_LOW
+        DO_HIGH
+        TEMP_LOW
+        TEMP_HIGH
+        TURBIDITY_HIGH
+        LEVEL_LOW
+        LEVEL_HIGH
+    }
+
+    enum Severity {
+        info
+        warning
+        critical
+    }
+
+    enum UserRole {
+        admin
+        operator
+        viewer
+    }
+
+    enum DeviceStatus {
+        online
+        offline
+        error
+        updating
+    }
+}
+
+package "Services" {
+    class MQTTService {
+        -client: MqttClient
+        -io: SocketIO
+        +initialize(io, logger): void
+        +publishCommand(data): Boolean
+        +updateThresholds(id, thresholds): Boolean
+        +isConnected(): Boolean
+        +disconnect(): void
+        -handleMessage(topic, msg): void
+        -handleSensorData(data): void
+        -checkThresholds(deviceId, data): void
+    }
+
+    class AlertService {
+        -emailTransporter: Transporter
+        +sendNotification(alert): void
+        +sendEmailAlert(alert): void
+        +sendSMSAlert(alert): void
+    }
+}
+
+package "Frontend Components" {
+    class Dashboard {
+        -sensorData: SensorData
+        -history: List
+        -stats: Stats
+        +fetchLatest(): void
+        +fetchHistory(period): void
+        +render(): JSX
+    }
+
+    class SensorDetail {
+        -actuatorStates: Map
+        +handleActuatorToggle(name): void
+        +handleFeed(): void
+        +render(): JSX
+    }
+
+    class AlertsPage {
+        -alerts: List
+        -filter: String
+        +fetchAlerts(): void
+        +handleAcknowledge(id): void
+        +render(): JSX
+    }
+
+    class Sidebar {
+        -open: Boolean
+        +render(): JSX
+    }
+
+    class Header {
+        -connected: Boolean
+        +render(): JSX
+    }
+}
+
+package "ESP32 Firmware" {
+    class SensorReader {
+        -phOffset: Float
+        -doOffset: Float
+        +readPH(): Float
+        +readDO(): Float
+        +readTemperature(): Float
+        +readTurbidity(): Float
+        +readWaterLevel(): Float
+    }
+
+    class ActuatorController {
+        -waterPump: Boolean
+        -aerator: Boolean
+        -heater: Boolean
+        +controlWaterPump(state): void
+        +controlAerator(state): void
+        +controlHeater(state): void
+        +controlValve(name, state): void
+    }
+
+    class MQTTClient {
+        -broker: String
+        -topics: Map
+        +connect(): void
+        +publish(topic, data): void
+        +subscribe(topic): void
+        +handleMessage(msg): void
+    }
+}
+
+User "1" --> "*" Pond : owns
+Pond "1" --> "1" Device : has
+Pond "1" --> "*" SensorData : contains
+Pond "1" --> "*" Alert : triggers
+Device "1" --> "*" SensorData : produces
+Device "1" --> "*" Alert : generates
+
+MQTTService --> Device : communicates with
+MQTTService --> SensorData : processes
+MQTTService --> AlertService : triggers
+
+Dashboard ..> MQTTService : subscribes
+SensorDetail ..> MQTTService : sends commands
+AlertsPage ..> Alert : manages
+
+MQTTClient --> SensorReader : reads from
+MQTTClient --> ActuatorController : controls
+MQTTClient ..> MQTTService : connects to
+
+@enduml
