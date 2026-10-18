@@ -13,7 +13,7 @@ An intelligent IoT-based system for automated water quality monitoring and regul
 
 The dashboard is deployed on Vercel and runs a self-contained replay of the two-week (14-day) simulation, so it is fully interactive without a backend:
 
-- **https://fish-farm-iot.vercel.app**
+- **https://farm.huog.online**
 
 Switch between the two 1000-litre tanks (Pond A / Pond B) from the header, watch live readings in real time, view charts and alerts, and toggle actuators manually.
 
@@ -287,14 +287,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Author
 
-**Eromosele Darlington Oscar**
-- Registration: G2025/MENG/ELG/FT/005
+**Asuelinmhen Peter**
 - Department: Electrical and Electronic Engineering
 - University: University of Port Harcourt
-- Supervisor: Engr. Ezeofor
 
 ## Acknowledgments
 
 - University of Port Harcourt, Department of Electrical and Electronic Engineering
-- Supervisor: Engr. Ezeofor
 - Open-source communities: Arduino, ESP32, Node.js, React, Material-UI
