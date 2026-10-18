@@ -1,42 +1,48 @@
 // ============================================================
 // API Service
+// ------------------------------------------------------------
+// When VITE_DEMO_MODE is not 'false' (default) the dashboard runs
+// against the bundled two-week simulation so the app is fully
+// functional without a backend (e.g. on Vercel). Set
+// VITE_DEMO_MODE=false and VITE_API_URL to use the live backend.
 // ============================================================
 
 import axios from 'axios';
+import demoApi from './demo';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const USE_DEMO = (import.meta.env.VITE_DEMO_MODE ?? 'true') !== 'false';
 
-const api = axios.create({
+const realApi = axios.create({
     baseURL: API_URL,
     timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor
-api.interceptors.request.use(
+realApi.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-// Response interceptor
-api.interceptors.response.use(
+realApi.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/login';
         }
         return Promise.reject(error);
     }
 );
+
+const api = USE_DEMO ? demoApi : realApi;
+
+export const isDemoMode = USE_DEMO;
+export const socketUrl = SOCKET_URL;
 
 // Sensor API
 export const sensorAPI = {

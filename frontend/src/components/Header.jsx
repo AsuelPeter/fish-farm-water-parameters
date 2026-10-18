@@ -15,6 +15,8 @@ import {
     MenuItem,
     Avatar,
     Tooltip,
+    FormControl,
+    Select,
 } from '@mui/material';
 import {
     Menu as MenuIcon,
@@ -26,6 +28,7 @@ import {
 import { useSocket } from '../hooks/useSocket';
 import { useSensors } from '../hooks/useSensors';
 import { useNavigate } from 'react-router-dom';
+import { meta } from '../services/demo';
 
 export default function Header({ onMenuClick, currentPond, onPondChange }) {
     const { connected } = useSocket();
@@ -70,14 +73,18 @@ export default function Header({ onMenuClick, currentPond, onPondChange }) {
                     sx={{ mr: 2 }}
                 />
 
-                {/* Current Pond */}
-                <Chip
-                    label={`Pond: ${currentPond}`}
-                    size="small"
-                    color="primary"
-                    variant="outlined"
-                    sx={{ mr: 2 }}
-                />
+                {/* Current Pond selector */}
+                <FormControl size="small" variant="outlined" sx={{ mr: 2, minWidth: 150 }}>
+                    <Select
+                        value={currentPond}
+                        onChange={(e) => onPondChange && onPondChange(e.target.value)}
+                        displayEmpty
+                    >
+                        {meta.ponds.map((p) => (
+                            <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
 
                 {/* Live Readings Summary */}
                 {sensorData && (

@@ -1,14 +1,17 @@
 // ============================================================
 // Socket.io Hook for Real-time Communication
+// ------------------------------------------------------------
+// In demo mode (no backend) a local simulation clock is started
+// and simulated threshold alerts are surfaced as toast messages.
 // ============================================================
 
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { isDemoMode, socketUrl } from '../services/api';
+import { startClock, onAlert } from '../services/demo';
 
 const SocketContext = createContext();
-
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
 
 export function SocketProvider({ children }) {
     const [socket, setSocket] = useState(null);
@@ -16,7 +19,21 @@ export function SocketProvider({ children }) {
     const socketRef = useRef(null);
 
     useEffect(() => {
-        const newSocket = io(SOCKET_URL, {
+        if (isDemoMode) {
+            // Simulated always-on connection backed by the bundled dataset
+            startClock();
+            setConnected(true);
+            const off = onAlert((alert) => {
+                if (alert.severity === 'critical') {
+                    toast.error(`CRITICAL: ${alert.message}`);
+                } else {
+                    toast.warning(`${alert.message}`);
+                }
+            });
+            return off;
+        }
+
+        const newSocket = io(socketUrl, {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: 5,
@@ -24,44 +41,36 @@ export function SocketProvider({ children }) {
         });
 
         newSocket.on('connect', () => {
-            console.log('[Socket] Connected');
             setConnected(true);
             toast.success('Connected to server');
         });
-
         newSocket.on('disconnect', () => {
-            console.log('[Socket] Disconnected');
             setConnected(false);
             toast.error('Disconnected from server');
         });
-
         newSocket.on('connect_error', (error) => {
             console.error('[Socket] Connection error:', error);
         });
-
         newSocket.on('new_alert', (alert) => {
             if (alert.severity === 'critical') {
-                toast.error(`🚨 CRITICAL: ${alert.message}`);
+                toast.error(`CRITICAL: ${alert.message}`);
             } else {
-                toast.warning(`⚠️ ${alert.message}`);
+                toast.warning(`${alert.message}`);
             }
         });
 
         socketRef.current = newSocket;
         setSocket(newSocket);
 
-        return () => {
-            newSocket.close();
-        };
+        return () => newSocket.close();
     }, []);
 
     const emit = (event, data) => {
-        if (socketRef.current) {
-            socketRef.current.emit(event, data);
-        }
+        if (socketRef.current) socketRef.current.emit(event, data);
     };
 
     const subscribe = (event, callback) => {
+        if (isDemoMode) return () => {};
         if (socketRef.current) {
             socketRef.current.on(event, callback);
             return () => socketRef.current.off(event, callback);

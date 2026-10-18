@@ -50,9 +50,9 @@ node "Cloud Infrastructure" {
 }
 
 node "User Devices" {
-    device "Laptop /\nDesktop" as PC
-    device "Smartphone" as Phone
-    device "Tablet" as Tablet
+    node "Laptop /\nDesktop" as PC
+    node "Smartphone" as Phone
+    node "Tablet" as Tablet
 }
 
 cloud "Email Service\n(SMTP)" as EmailCloud

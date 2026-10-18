@@ -186,7 +186,7 @@ export default function Alerts({ pondId }) {
                                     key={alert._id}
                                     sx={{
                                         mb: 1,
-                                        bgcolor: alert.acknowledged ? 'grey.50' : `${getSeverityColor(alert.severity)}.50`,
+                                        bgcolor: alert.acknowledged ? 'grey.50' : `${getSeverityColor(alert.severity)}.light`,
                                         borderRadius: 2,
                                         opacity: alert.acknowledged ? 0.7 : 1,
                                     }}

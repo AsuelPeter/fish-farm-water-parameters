@@ -43,6 +43,8 @@ import {
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import { useSensors } from '../hooks/useSensors';
 import { useSocket } from '../hooks/useSocket';
+import api from '../services/api';
+import { meta } from '../services/demo';
 
 ChartJS.register(
     CategoryScale, LinearScale, PointElement, LineElement,
@@ -52,7 +54,7 @@ ChartJS.register(
 // Sensor Card Component
 function SensorCard({ title, value, unit, icon, status, color, min, max }) {
     const getStatusColor = () => {
-        if (value === null || value === undefined) return 'grey';
+        if (value === null || value === undefined) return 'default';
         if (value < min || value > max) return 'error';
         return 'success';
     };
@@ -102,7 +104,7 @@ function SensorCard({ title, value, unit, icon, status, color, min, max }) {
 // Time Series Chart Component
 function TimeSeriesChart({ data, title, dataKeys, colors }) {
     const chartData = {
-        labels: data.map(d => new Date(d._id).toLocaleTimeString()),
+        labels: data.map(d => new Date(d._id).toLocaleString([], { hour: '2-digit', minute: '2-digit' })),
         datasets: dataKeys.map((key, i) => ({
             label: key.label,
             data: data.map(d => d[key.field]),
@@ -112,6 +114,7 @@ function TimeSeriesChart({ data, title, dataKeys, colors }) {
             tension: 0.4,
             pointRadius: 0,
             borderWidth: 2,
+            yAxisID: key.axis || 'y',
         })),
     };
 
@@ -124,7 +127,16 @@ function TimeSeriesChart({ data, title, dataKeys, colors }) {
         },
         scales: {
             x: { grid: { display: false } },
-            y: { grid: { color: 'rgba(0,0,0,0.05)' } },
+            y: {
+                type: 'linear', position: 'left',
+                title: { display: true, text: 'pH / DO (mg/L)' },
+                grid: { color: 'rgba(0,0,0,0.05)' },
+            },
+            y1: {
+                type: 'linear', position: 'right',
+                title: { display: true, text: 'Temperature (°C)' },
+                grid: { drawOnChartArea: false },
+            },
         },
         interaction: { intersect: false, mode: 'index' },
     };
@@ -145,10 +157,32 @@ export default function Dashboard({ pondId }) {
     const { sensorData, history, stats, loading, fetchHistory } = useSensors();
     const { connected } = useSocket();
     const [alertCount, setAlertCount] = useState(0);
+    const [alertDist, setAlertDist] = useState({});
+    const [runtime, setRuntime] = useState(null);
 
     useEffect(() => {
         fetchHistory('24h');
     }, [fetchHistory]);
+
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            try {
+                const [aRes, rRes, sRes] = await Promise.all([
+                    api.get(`/alerts/stats?pondId=${pondId}&period=7d`),
+                    api.get(`/actuators/runtime?pondId=${pondId}`),
+                    api.get('/sensors/stats?pondId=' + pondId + '&period=24h'),
+                ]);
+                if (!active) return;
+                setAlertDist(aRes.data.byType || aRes.data.data || {});
+                setRuntime(rRes.data.data || null);
+                setAlertCount((sRes.data.data && (sRes.data.data.totalReadings || 0)) || 0);
+            } catch (e) {
+                /* keep defaults */
+            }
+        })();
+        return () => { active = false; };
+    }, [pondId]);
 
     if (loading) {
         return (
@@ -159,24 +193,28 @@ export default function Dashboard({ pondId }) {
     }
 
     // Alert distribution data for doughnut chart
-    const alertData = {
-        labels: ['pH Warning', 'DO Critical', 'Temp Alert', 'Turbidity', 'Level Alert'],
+    const distKeys = Object.keys(alertDist).filter(k => alertDist[k] > 0);
+    const alertData = distKeys.length ? {
+        labels: distKeys,
         datasets: [{
-            data: [12, 8, 5, 3, 2],
-            backgroundColor: [
-                '#ffc107', '#d32f2f', '#ff9800', '#2196f3', '#9c27b0'
-            ],
+            data: distKeys.map(k => alertDist[k]),
+            backgroundColor: ['#ffc107', '#d32f2f', '#ff9800', '#2196f3', '#9c27b0', '#00897b'],
             borderWidth: 0,
         }],
+    } : {
+        labels: ['No alerts'],
+        datasets: [{ data: [1], backgroundColor: ['#e0e0e0'], borderWidth: 0 }],
     };
 
     // Actuator status data for bar chart
     const actuatorData = {
-        labels: ['Pump', 'Aerator', 'Heater', 'Inlet', 'Drain'],
+        labels: ['Inlet', 'Drain', 'Aerator', 'Heater', 'Feeder'],
         datasets: [{
-            label: 'Operating Hours Today',
-            data: [8, 12, 4, 2, 1],
-            backgroundColor: ['#1976d2', '#00897b', '#d32f2f', '#7b1fa2', '#f57c00'],
+            label: 'Operating Hours (14 days)',
+            data: runtime
+                ? [runtime.inlet_pump, runtime.drain_pump, runtime.aerator, runtime.heater, runtime.feeder]
+                : [0, 0, 0, 0, 0],
+            backgroundColor: ['#7b1fa2', '#f57c00', '#1976d2', '#00897b', '#d32f2f'],
             borderRadius: 8,
         }],
     };
@@ -290,9 +328,9 @@ export default function Dashboard({ pondId }) {
                         data={history.slice(-50)}
                         title="Water Parameters (Last 24 Hours)"
                         dataKeys={[
-                            { field: 'avgPH', label: 'pH' },
-                            { field: 'avgDO', label: 'Dissolved O₂' },
-                            { field: 'avgTemp', label: 'Temperature' },
+                            { field: 'avgPH', label: 'pH', axis: 'y' },
+                            { field: 'avgDO', label: 'Dissolved O₂', axis: 'y' },
+                            { field: 'avgTemp', label: 'Temperature', axis: 'y1' },
                         ]}
                         colors={['#1976d2', '#00897b', '#f57c00']}
                     />

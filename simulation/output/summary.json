@@ -1,0 +1,110 @@
+{
+  "period_days": 14,
+  "time_step_minutes": 5,
+  "reading_interval_data_points": 8064,
+  "tanks": [
+    "Tank_A",
+    "Tank_B"
+  ],
+  "tank_volume_litres": 1000.0,
+  "thresholds": {
+    "ph_min": 6.5,
+    "ph_max": 8.5,
+    "do_min": 5.0,
+    "do_max": 9.0,
+    "temp_min": 24.0,
+    "temp_max": 30.0,
+    "turbidity_max": 50.0,
+    "level_min": 0.4,
+    "level_max": 0.75
+  },
+  "per_tank": {
+    "Tank_A": {
+      "mean_ph": 7.045,
+      "mean_do": 5.688,
+      "mean_temp": 26.705,
+      "mean_turbidity": 39.44,
+      "mean_level": 0.756,
+      "min_do": 1.558,
+      "max_turbidity": 59.07,
+      "percent_within_safe_range": {
+        "ph": 95.49,
+        "do": 96.33,
+        "temperature": 100.0,
+        "turbidity": 98.29,
+        "level": 99.78
+      },
+      "alerts": 61,
+      "actuator_runtime_hours_total": {
+        "inlet_pump": 5.08,
+        "drain_pump": 5.58,
+        "aerator": 55.83,
+        "heater": 1.92,
+        "feeder": 2.34
+      }
+    },
+    "Tank_B": {
+      "mean_ph": 7.069,
+      "mean_do": 5.626,
+      "mean_temp": 27.897,
+      "mean_turbidity": 41.32,
+      "mean_level": 0.748,
+      "min_do": 4.461,
+      "max_turbidity": 60.6,
+      "percent_within_safe_range": {
+        "ph": 96.95,
+        "do": 97.17,
+        "temperature": 86.06,
+        "turbidity": 96.97,
+        "level": 98.16
+      },
+      "alerts": 128,
+      "actuator_runtime_hours_total": {
+        "inlet_pump": 8.08,
+        "drain_pump": 8.75,
+        "aerator": 69.83,
+        "heater": 0.0,
+        "feeder": 2.34
+      }
+    }
+  },
+  "total_alerts": 189,
+  "alerts_by_severity": {
+    "warning": 181,
+    "critical": 8
+  },
+  "alerts_by_type": {
+    "Temperature": 56,
+    "DO": 51,
+    "pH": 28,
+    "Level": 28,
+    "Turbidity": 24,
+    "Fault": 2
+  },
+  "sensor_uptime_percent": 99.4,
+  "manual_interventions": 0,
+  "faults_injected": [
+    {
+      "tank": "Tank_A",
+      "day": 9,
+      "hour": 3.0,
+      "actuator": "aerator",
+      "duration_h": 5.0,
+      "label": "Aerator failure"
+    },
+    {
+      "tank": "Tank_B",
+      "day": 12,
+      "hour": 8.0,
+      "actuator": "inlet_pump",
+      "duration_h": 5.0,
+      "label": "Inlet pump failure"
+    }
+  ],
+  "comparison": {
+    "metric": "Percent of time within safe range",
+    "automated": 95.33,
+    "manual_baseline": 68.0,
+    "improvement_points": 27.33
+  }
+}

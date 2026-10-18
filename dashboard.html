@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fish Farm IoT Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#333;overflow-x:hidden}
+.sidebar{position:fixed;left:0;top:0;width:240px;height:100vh;background:#fff;border-right:1px solid #e0e0e0;padding:24px 16px;z-index:10;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.logo span{color:#1976d2;font-size:20px;font-weight:700}
+.logo small{color:#888;font-size:11px;display:block;margin-bottom:28px}
+.nav-item{display:flex;align-items:center;padding:11px 14px;border-radius:10px;cursor:pointer;margin-bottom:4px;font-size:14px;color:#555;transition:all .2s;font-weight:500}
+.nav-item:hover{background:#e3f2fd;color:#1976d2}
+.nav-item.active{background:#1976d2;color:#fff;box-shadow:0 2px 8px rgba(25,118,210,.3)}
+.nav-item i{margin-right:10px;font-size:20px}
+.sidebar-footer{margin-top:auto;color:#bbb;font-size:10px;padding-top:16px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:6px}
+.sidebar-footer .dot{width:8px;height:8px;border-radius:50%;background:#4caf50;animation:pulse 2s infinite}
+.main{margin-left:240px;padding:28px 32px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:24px;font-weight:700;color:#1a1a1a}
+.header .sub{color:#888;font-size:13px;margin-top:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid;display:flex;align-items:center;gap:4px}
+.chip-g{color:#2e7d32;border-color:#a5d6a7;background:#e8f5e9}
+.chip-b{color:#1565c0;border-color:#90caf9;background:#e3f2fd}
+.chip-o{color:#e65100;border-color:#ffcc80;background:#fff3e0}
+.chip-r{color:#c62828;border-color:#ef9a9a;background:#ffebee}
+.grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:28px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.card .lbl{font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.card .val{font-size:32px;font-weight:700;margin:10px 0 4px;font-variant-numeric:tabular-nums}
+.card .unit{font-size:11px;color:#aaa}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600;margin-top:8px;letter-spacing:.3px}
+.b-ok{background:#e8f5e9;color:#2e7d32}
+.b-warn{background:#fff3e0;color:#e65100}
+.b-crit{background:#ffebee;color:#c62828}
+.b-act{background:#e3f2fd;color:#1565c0}
+.row2{display:grid;grid-template-columns:5fr 2fr;gap:16px;margin-bottom:28px}
+.row2e{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:16px;color:#333;display:flex;align-items:center;gap:8px}
+.card h3 i{font-size:18px;color:#1976d2}
+.alert{display:flex;align-items:flex-start;padding:12px 16px;border-radius:10px;margin-bottom:10px;font-size:13px;gap:12px;transition:background .2s}
+.alert:hover{filter:brightness(.97)}
+.a-c{background:#ffebee;border-left:4px solid #ef5350}
+.a-w{background:#fff8e1;border-left:4px solid #ffa726}
+.a-i{background:#e3f2fd;border-left:4px solid #42a5f5}
+.alert .a-body{flex:1}
+.alert .a-type{font-weight:700;font-size:13px}
+.alert .a-msg{color:#555;margin-top:2px;font-size:12px}
+.alert .a-time{font-size:11px;color:#999;margin-top:4px}
+.alert .a-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.a-c .a-icon{background:#ffcdd2;color:#c62828}
+.a-w .a-icon{background:#fff3e0;color:#e65100}
+.a-i .a-icon{background:#bbdefb;color:#1565c0}
+.act-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center}
+.act-card{background:#f8f9fa;border-radius:12px;padding:16px 8px;transition:all .2s}
+.act-card:hover{background:#f0f4ff}
+.act-card .ic{font-size:32px;margin-bottom:6px}
+.act-card .nm{font-size:12px;font-weight:600;margin-bottom:8px;color:#555}
+.act-card .status{font-size:10px;font-weight:600;margin-bottom:6px}
+.act-card .status.on{color:#2e7d32}
+.act-card .status.off{color:#999}
+.toggle{width:48px;height:26px;border-radius:13px;background:#ccc;position:relative;cursor:pointer;margin:0 auto;transition:.3s}
+.toggle.on{background:#1976d2}
+.toggle::after{content:'';width:22px;height:22px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{left:24px}
+.footer{text-align:center;padding:24px;color:#bbb;font-size:11px;margin-top:8px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .5s ease-out both}
+.grid6 .card:nth-child(1){animation-delay:.05s}
+.grid6 .card:nth-child(2){animation-delay:.1s}
+.grid6 .card:nth-child(3){animation-delay:.15s}
+.grid6 .card:nth-child(4){animation-delay:.2s}
+.grid6 .card:nth-child(5){animation-delay:.25s}
+.grid6 .card:nth-child(6){animation-delay:.3s}
+.sparkline{height:40px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo"><span>Fish Farm</span></div>
+  <small>IoT Monitoring System v1.0</small>
+  <div class="nav-item active"><i class="material-icons">dashboard</i>Dashboard</div>
+  <div class="nav-item"><i class="material-icons">sensors</i>Sensors</div>
+  <div class="nav-item"><i class="material-icons">notifications</i>Alerts</div>
+  <div class="nav-item"><i class="material-icons">settings</i>Settings</div>
+  <div class="sidebar-footer"><div class="dot"></div><span>ESP32 Online &bull; pond_001</span></div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <div><h1>Dashboard Overview</h1><p class="sub">Real-time water quality monitoring for <b>pond_001</b></p></div>
+    <div class="chips">
+      <div class="chip chip-g"><div class="dot" style="width:6px;height:6px;border-radius:50%;background:#4caf50"></div> Connected</div>
+      <div class="chip chip-b">Pond: pond_001</div>
+      <div class="chip chip-g" id="phChip">pH: 7.2</div>
+      <div class="chip chip-g" id="doChip">DO: 6.8</div>
+      <div class="chip chip-g" id="tempChip">Temp: 27.5</div>
+    </div>
+  </div>
+
+  <div class="grid6">
+    <div class="card"><div class="lbl">pH Level</div><div class="val" id="phVal" style="color:#1976d2">7.24</div><div class="unit">pH</div><span class="badge b-ok" id="phBadge">Normal</span><canvas class="sparkline" id="spkPH"></canvas></div>
+    <div class="card"><div class="lbl">Dissolved Oxygen</div><div class="val" id="doVal" style="color:#00897b">6.82</div><div class="unit">mg/L</div><span class="badge b-ok" id="doBadge">Normal</span><canvas class="sparkline" id="spkDO"></canvas></div>
+    <div class="card"><div class="lbl">Temperature</div><div class="val" id="tempVal" style="color:#f57c00">27.5</div><div class="unit">&deg;C</div><span class="badge b-ok" id="tempBadge">Normal</span><canvas class="sparkline" id="spkTemp"></canvas></div>
+    <div class="card"><div class="lbl">Turbidity</div><div class="val" id="turbVal" style="color:#9c27b0">38.2</div><div class="unit">NTU</div><span class="badge b-ok" id="turbBadge">Normal</span><canvas class="sparkline" id="spkTurb"></canvas></div>
+    <div class="card"><div class="lbl">Water Level</div><div class="val" id="levelVal" style="color:#1976d2">0.85</div><div class="unit">meters</div><span class="badge b-ok" id="levelBadge">Normal</span><canvas class="sparkline" id="spkLevel"></canvas></div>
+    <div class="card"><div class="lbl">Flow Rate</div><div class="val" id="flowVal" style="color:#2e7d32">12.4</div><div class="unit">L/min</div><span class="badge b-act" id="flowBadge">Active</span><canvas class="sparkline" id="spkFlow"></canvas></div>
+  </div>
+
+  <div class="row2">
+    <div class="card"><h3><i class="material-icons">show_chart</i> Water Parameters Trend (24h)</h3><canvas id="mainChart" height="90"></canvas></div>
+    <div class="card"><h3><i class="material-icons">donut_large</i> Alert Distribution</h3><canvas id="alertChart" height="200"></canvas></div>
+  </div>
+
+  <div class="row2e">
+    <div class="card"><h3><i class="material-icons">warning</i> Recent Alerts</h3><div id="alertList"></div></div>
+    <div class="card"><h3><i class="material-icons">tune</i> Actuator Controls</h3>
+      <div class="act-grid">
+        <div class="act-card"><div class="ic">💧</div><div class="nm">Water Pump</div><div class="status on" id="st_pump">ON</div><div class="toggle on" id="tog_pump" onclick="toggleAct('pump')"></div></div>
+        <div class="act-card"><div class="ic">🫧</div><div class="nm">Aerator</div><div class="status on" id="st_aerator">ON</div><div class="toggle on" id="tog_aerator" onclick="toggleAct('aerator')"></div></div>
+        <div class="act-card"><div class="ic">🌡️</div><div class="nm">Heater</div><div class="status off" id="st_heater">OFF</div><div class="toggle" id="tog_heater" onclick="toggleAct('heater')"></div></div>
+        <div class="act-card"><div class="ic">🚰</div><div class="nm">Inlet Valve</div><div class="status off" id="st_inlet">OFF</div><div class="toggle" id="tog_inlet" onclick="toggleAct('inlet')"></div></div>
+        <div class="act-card"><div class="ic">🔽</div><div class="nm">Drain Valve</div><div class="status off" id="st_drain">OFF</div><div class="toggle" id="tog_drain" onclick="toggleAct('drain')"></div></div>
+        <div class="act-card"><div class="ic">🐟</div><div class="nm">Feeder</div><div class="status off" id="st_feed">OFF</div><div class="toggle" id="tog_feed" onclick="toggleAct('feed')"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Fish Farm IoT &mdash; Automated Water Regulation System for Sustainable Aquaculture<br>ESP32 &bull; MQTT &bull; Node.js &bull; React</div>
+</div>
+
+<script>
+// ============================================================
+// LIVE SIMULATED SENSOR DATA ENGINE
+// ============================================================
+const state = {
+  ph: 7.24, do2: 6.82, temp: 27.5, turb: 38.2, level: 0.85, flow: 12.4,
+  history: { ph: [], do2: [], temp: [], turb: [], level: [], flow: [] },
+  alerts: [
+    { type:'DO_LOW', severity:'critical', message:'Dissolved oxygen critically low: 4.2 mg/L', time: Date.now()-120000 },
+    { type:'TURBIDITY_HIGH', severity:'warning', message:'Turbidity above threshold: 65 NTU', time: Date.now()-900000 },
+    { type:'SYSTEM', severity:'info', message:'Aerator automatically activated', time: Date.now()-3600000 },
+    { type:'PH_LOW', severity:'warning', message:'pH dropped below 6.5 threshold', time: Date.now()-7200000 },
+    { type:'TEMP_HIGH', severity:'critical', message:'Temperature exceeded 30°C limit', time: Date.now()-10800000 }
+  ],
+  actuators: { pump:true, aerator:true, heater:false, inlet:false, drain:false, feed:false }
+};
+
+// Generate realistic sensor values with drift
+function genSensor(base, variance, min, max) {
+  let v = base + (Math.random() - 0.5) * variance;
+  return Math.max(min, Math.min(max, v));
+}
+
+function updateSensors() {
+  state.ph = genSensor(state.ph, 0.15, 5.5, 9.0);
+  state.do2 = genSensor(state.do2, 0.3, 3.0, 10.0);
+  state.temp = genSensor(state.temp, 0.2, 20.0, 35.0);
+  state.turb = genSensor(state.turb, 2.0, 5.0, 100.0);
+  state.level = genSensor(state.level, 0.03, 0.2, 1.5);
+  state.flow = genSensor(state.flow, 0.5, 5.0, 20.0);
+
+  // Store history
+  Object.keys(state.history).forEach(k => {
+    const map = { ph:'ph', do2:'do2', temp:'temp', turb:'turb', level:'level', flow:'flow' };
+    state.history[k].push(state[map[k]]);
+    if (state.history[k].length > 50) state.history[k].shift();
+  });
+
+  // Auto-generate alerts
+  if (state.do2 < 5.0 && Math.random() > 0.9) {
+    state.alerts.unshift({ type:'DO_LOW', severity:'critical', message:`Dissolved oxygen low: ${state.do2.toFixed(1)} mg/L`, time: Date.now() });
+  }
+  if (state.temp > 30 && Math.random() > 0.95) {
+    state.alerts.unshift({ type:'TEMP_HIGH', severity:'warning', message:`Temperature elevated: ${state.temp.toFixed(1)}°C`, time: Date.now() });
+  }
+  if (state.turb > 50 && Math.random() > 0.93) {
+    state.alerts.unshift({ type:'TURBIDITY_HIGH', severity:'warning', message:`Turbidity high: ${state.turb.toFixed(1)} NTU`, time: Date.now() });
+  }
+  if (state.ph < 6.5 && Math.random() > 0.97) {
+    state.alerts.unshift({ type:'PH_LOW', severity:'critical', message:`pH critically low: ${state.ph.toFixed(2)}`, time: Date.now() });
+  }
+  state.alerts = state.alerts.slice(0, 20);
+}
+
+// ============================================================
+// UI UPDATE FUNCTIONS
+// ============================================================
+function badgeClass(val, min, max) {
+  if (val < min || val > max) return ['b-crit', 'Critical'];
+  if (val < min + (max-min)*0.1 || val > max - (max-min)*0.1) return ['b-warn', 'Warning'];
+  return ['b-ok', 'Normal'];
+}
+function valColor(val, min, max) {
+  if (val < min || val > max) return '#c62828';
+  if (val < min + (max-min)*0.1 || val > max - (max-min)*0.1) return '#e65100';
+  return '#1976d2';
+}
+
+function updateUI() {
+  // Sensor values
+  document.getElementById('phVal').textContent = state.ph.toFixed(2);
+  document.getElementById('doVal').textContent = state.do2.toFixed(2);
+  document.getElementById('tempVal').textContent = state.temp.toFixed(1);
+  document.getElementById('turbVal').textContent = state.turb.toFixed(1);
+  document.getElementById('levelVal').textContent = state.level.toFixed(2);
+  document.getElementById('flowVal').textContent = state.flow.toFixed(1);
+
+  // Colors
+  document.getElementById('phVal').style.color = valColor(state.ph, 6.5, 8.5);
+  document.getElementById('doVal').style.color = valColor(state.do2, 5, 9);
+  document.getElementById('tempVal').style.color = valColor(state.temp, 24, 30);
+  document.getElementById('turbVal').style.color = valColor(state.turb, 0, 50);
+  document.getElementById('levelVal').style.color = valColor(state.level, 0.3, 1.2);
+  document.getElementById('flowVal').style.color = state.flow > 0 ? '#2e7d32' : '#999';
+
+  // Badges
+  const badges = {
+    ph: badgeClass(state.ph, 6.5, 8.5),
+    do: badgeClass(state.do2, 5, 9),
+    temp: badgeClass(state.temp, 24, 30),
+    turb: badgeClass(state.turb, 0, 50)
+  };
+  Object.entries(badges).forEach(([k, [cls, txt]]) => {
+    const el = document.getElementById(k + 'Badge');
+    el.className = 'badge ' + cls; el.textContent = txt;
+  });
+  document.getElementById('levelBadge').className = 'badge ' + (state.level > 0.3 && state.level < 1.2 ? 'b-ok' : 'b-crit');
+  document.getElementById('levelBadge').textContent = state.level > 0.3 && state.level < 1.2 ? 'Normal' : 'Critical';
+  document.getElementById('flowBadge').className = 'badge b-act';
+  document.getElementById('flowBadge').textContent = state.flow > 0 ? 'Active' : 'Stopped';
+
+  // Chips
+  document.getElementById('phChip').textContent = 'pH: ' + state.ph.toFixed(1);
+  document.getElementById('doChip').textContent = 'DO: ' + state.do2.toFixed(1);
+  document.getElementById('tempChip').textContent = 'Temp: ' + state.temp.toFixed(1);
+
+  // Actuator statuses
+  Object.entries(state.actuators).forEach(([k, v]) => {
+    const tog = document.getElementById('tog_' + k);
+    const st = document.getElementById('st_' + k);
+    if (tog) { v ? tog.classList.add('on') : tog.classList.remove('on'); }
+    if (st) { st.textContent = v ? 'ON' : 'OFF'; st.className = 'status ' + (v ? 'on' : 'off'); }
+  });
+
+  // Alerts
+  renderAlerts();
+
+  // Update sparklines and main chart
+  updateCharts();
+}
+
+function renderAlerts() {
+  const el = document.getElementById('alertList');
+  const icons = { critical: 'error', warning: 'warning', info: 'info' };
+  el.innerHTML = state.alerts.slice(0, 5).map(a => {
+    const cls = a.severity === 'critical' ? 'a-c' : a.severity === 'warning' ? 'a-w' : 'a-i';
+    const timeAgo = formatTime(a.time);
+    return `<div class="alert ${cls}">
+      <div class="a-icon"><i class="material-icons">${icons[a.severity]}</i></div>
+      <div class="a-body">
+        <div class="a-type">${a.type.replace(/_/g, ' ')}</div>
+        <div class="a-msg">${a.message}</div>
+        <div class="a-time">${timeAgo}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function formatTime(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + ' min ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + ' hours ago';
+  return Math.floor(diff/86400000) + ' days ago';
+}
+
+function toggleAct(name) {
+  state.actuators[name] = !state.actuators[name];
+  updateUI();
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+let mainChart, sparklines = {};
+const MAX_POINTS = 30;
+const timeLabels = [];
+
+function initCharts() {
+  for (let i = MAX_POINTS-1; i >= 0; i--) {
+    const d = new Date(); d.setSeconds(d.getSeconds() - i*5);
+    timeLabels.push(d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0'));
+    state.history.ph.push(genSensor(7.2, 0.2, 6.0, 8.5));
+    state.history.do2.push(genSensor(6.8, 0.4, 4.5, 9.0));
+    state.history.temp.push(genSensor(27.5, 0.3, 25.0, 30.0));
+    state.history.turb.push(genSensor(38, 5, 15, 65));
+    state.history.level.push(genSensor(0.85, 0.04, 0.5, 1.2));
+    state.history.flow.push(genSensor(12, 1.5, 8, 18));
+  }
+
+  // Main trend chart
+  mainChart = new Chart(document.getElementById('mainChart'), {
+    type: 'line',
+    data: {
+      labels: [...timeLabels],
+      datasets: [
+        { label:'pH', data:[...state.history.ph], borderColor:'#1976d2', backgroundColor:'#1976d218', fill:true, tension:.4, pointRadius:0, borderWidth:2.5 },
+        { label:'DO (mg/L)', data:[...state.history.do2], borderColor:'#00897b', backgroundColor:'#00897b18', fill:true, tension:.4, pointRadius:0, borderWidth:2.5 },
+        { label:'Temp (°C)', data:[...state.history.temp], borderColor:'#f57c00', backgroundColor:'#f57c0018', fill:true, tension:.4, pointRadius:0, borderWidth:2.5 }
+      ]
+    },
+    options: {
+      responsive: true, animation:{ duration:300 },
+      plugins: { legend:{ position:'top', labels:{ boxWidth:14, font:{size:11}, usePointStyle:true } } },
+      scales: {
+        x: { grid:{display:false}, ticks:{font:{size:9}, maxTicksLimit:12, maxRotation:0} },
+        y: { grid:{color:'rgba(0,0,0,.04)'}, ticks:{font:{size:10}} }
+      },
+      interaction: { mode:'index', intersect:false }
+    }
+  });
+
+  // Alert distribution
+  new Chart(document.getElementById('alertChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['DO Alerts', 'pH Alerts', 'Temp Alerts', 'Turbidity Alerts', 'System'],
+      datasets: [{ data:[5,3,2,4,1], backgroundColor:['#ef5350','#ffc107','#ff9800','#42a5f5','#9c27b0'], borderWidth:0, hoverOffset:8 }]
+    },
+    options: {
+      responsive: true, animation:{ duration:500 },
+      plugins: { legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11}, padding:12 } } },
+      cutout:'68%'
+    }
+  });
+
+  // Sparklines
+  const sparkConfig = {
+    ph: { color:'#1976d2', data: state.history.ph },
+    do2: { color:'#00897b', data: state.history.do2 },
+    temp: { color:'#f57c00', data: state.history.temp },
+    turb: { color:'#9c27b0', data: state.history.turb },
+    level: { color:'#1976d2', data: state.history.level },
+    flow: { color:'#2e7d32', data: state.history.flow }
+  };
+  const sparkIds = { ph:'spkPH', do2:'spkDO', temp:'spkTemp', turb:'spkTurb', level:'spkLevel', flow:'spkFlow' };
+
+  Object.entries(sparkConfig).forEach(([k, cfg]) => {
+    sparklines[k] = new Chart(document.getElementById(sparkIds[k]), {
+      type: 'line',
+      data: { labels: cfg.data.map((_,i)=>i), datasets:[{ data:[...cfg.data], borderColor:cfg.color, borderWidth:1.5, pointRadius:0, fill:true, backgroundColor:cfg.color+'15', tension:.4 }] },
+      options: { responsive:true, maintainAspectRatio:false, animation:{duration:200}, plugins:{legend:{display:false}}, scales:{x:{display:false},y:{display:false}} }
+    });
+  });
+}
+
+function updateCharts() {
+  if (!mainChart) return;
+  const t = new Date();
+  const lbl = t.getHours() + ':' + String(t.getMinutes()).padStart(2,'0') + ':' + String(t.getSeconds()).padStart(2,'0');
+
+  mainChart.data.labels.push(lbl);
+  mainChart.data.datasets[0].data.push(state.ph);
+  mainChart.data.datasets[1].data.push(state.do2);
+  mainChart.data.datasets[2].data.push(state.temp);
+  if (mainChart.data.labels.length > MAX_POINTS) {
+    mainChart.data.labels.shift();
+    mainChart.data.datasets.forEach(ds => ds.data.shift());
+  }
+  mainChart.update('none');
+
+  // Sparklines
+  const map = { ph:'ph', do2:'do2', temp:'temp', turb:'turb', level:'level', flow:'flow' };
+  Object.entries(sparklines).forEach(([k, chart]) => {
+    chart.data.datasets[0].data = [...state.history[map[k]]];
+    if (chart.data.datasets[0].data.length > MAX_POINTS) chart.data.datasets[0].data.shift();
+    chart.update('none');
+  });
+}
+
+// ============================================================
+// START
+// ============================================================
+initCharts();
+updateSensors();
+updateUI();
+setInterval(() => { updateSensors(); updateUI(); }, 3000);
+</script>
+</body>
+</html>

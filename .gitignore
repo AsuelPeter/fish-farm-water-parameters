@@ -41,6 +41,14 @@ venv/
 data/
 *.db
 
+# Keep simulation datasets (deliverable)
+!simulation/data/
+!simulation/data/**
+
+# Test / browser artefacts
+.playwright-mcp/
+*_test_*.png
+
 # Temporary
 tmp/
 temp/

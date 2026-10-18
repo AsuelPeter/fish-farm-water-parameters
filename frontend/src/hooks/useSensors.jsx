@@ -3,8 +3,8 @@
 // ============================================================
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
-import { useSocket } from './useSocket';
+import api, { isDemoMode } from '../services/api';
+import { onUpdate } from '../services/demo';
 
 const SensorContext = createContext();
 
@@ -14,9 +14,7 @@ export function SensorProvider({ children, pondId }) {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { subscribe } = useSocket();
 
-    // Fetch latest sensor data
     const fetchLatest = useCallback(async () => {
         try {
             const response = await api.get(`/sensors/latest?pondId=${pondId}`);
@@ -30,7 +28,6 @@ export function SensorProvider({ children, pondId }) {
         }
     }, [pondId]);
 
-    // Fetch historical data
     const fetchHistory = useCallback(async (period = '24h') => {
         try {
             const response = await api.get(`/sensors/history?pondId=${pondId}&period=${period}`);
@@ -40,7 +37,6 @@ export function SensorProvider({ children, pondId }) {
         }
     }, [pondId]);
 
-    // Fetch statistics
     const fetchStats = useCallback(async (period = '24h') => {
         try {
             const response = await api.get(`/sensors/stats?pondId=${pondId}&period=${period}`);
@@ -50,23 +46,23 @@ export function SensorProvider({ children, pondId }) {
         }
     }, [pondId]);
 
-    // Subscribe to real-time updates
     useEffect(() => {
+        setLoading(true);
         fetchLatest();
-        fetchHistory();
-        fetchStats();
+        fetchHistory('24h');
+        fetchStats('24h');
 
-        const interval = setInterval(fetchLatest, 5000);
+        const interval = setInterval(fetchLatest, isDemoMode ? 5000 : 5000);
         return () => clearInterval(interval);
     }, [fetchLatest, fetchHistory, fetchStats]);
 
-    // Real-time updates via socket
+    // Live updates from the simulation clock (demo mode)
     useEffect(() => {
-        const unsubscribe = subscribe('sensor_data', (data) => {
-            setSensorData(data);
+        if (!isDemoMode) return () => {};
+        return onUpdate(() => {
+            fetchLatest();
         });
-        return unsubscribe;
-    }, [subscribe]);
+    }, [fetchLatest]);
 
     return (
         <SensorContext.Provider value={{

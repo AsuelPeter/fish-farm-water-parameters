@@ -1,0 +1,190 @@
+tank,day,hour,type,value,severity,message
+Tank_A,3,3.33,pH,6.5,warning,pH outside safe range
+Tank_A,3,4.33,pH,6.42,warning,pH outside safe range
+Tank_A,3,5.33,pH,6.39,warning,pH outside safe range
+Tank_A,3,6.33,pH,6.35,warning,pH outside safe range
+Tank_A,3,7.0,Turbidity,51.5,warning,High turbidity - water exchange triggered
+Tank_A,3,7.33,pH,6.37,warning,pH outside safe range
+Tank_A,3,7.42,Level,0.378,warning,Water level low - refilling / check inlet
+Tank_A,4,4.33,pH,6.5,warning,pH outside safe range
+Tank_A,4,5.33,pH,6.49,warning,pH outside safe range
+Tank_A,4,6.33,pH,6.48,warning,pH outside safe range
+Tank_A,5,4.17,pH,6.5,warning,pH outside safe range
+Tank_A,5,5.17,pH,6.46,warning,pH outside safe range
+Tank_A,5,6.17,pH,6.44,warning,pH outside safe range
+Tank_A,5,7.0,DO,4.74,warning,Dissolved oxygen below threshold
+Tank_A,5,7.17,pH,6.46,warning,pH outside safe range
+Tank_A,6,4.17,pH,6.5,warning,pH outside safe range
+Tank_A,6,5.17,pH,6.46,warning,pH outside safe range
+Tank_A,6,6.17,pH,6.47,warning,pH outside safe range
+Tank_A,6,7.0,DO,4.84,warning,Dissolved oxygen below threshold
+Tank_A,6,7.0,Turbidity,50.1,warning,High turbidity - water exchange triggered
+Tank_A,6,7.17,pH,6.48,warning,pH outside safe range
+Tank_A,6,7.58,Level,0.361,warning,Water level low - refilling / check inlet
+Tank_A,7,7.0,DO,4.73,warning,Dissolved oxygen below threshold
+Tank_A,7,17.0,Turbidity,52.1,warning,High turbidity - water exchange triggered
+Tank_A,7,17.67,Level,0.363,warning,Water level low - refilling / check inlet
+Tank_A,8,5.92,pH,6.5,warning,pH outside safe range
+Tank_A,9,3.0,Fault,0.0,critical,Aerator failure detected on Tank_A
+Tank_A,9,3.0,DO,2.13,critical,Dissolved oxygen below threshold
+Tank_A,9,4.0,DO,1.84,critical,Dissolved oxygen below threshold
+Tank_A,9,5.0,DO,1.91,critical,Dissolved oxygen below threshold
+Tank_A,9,6.0,DO,1.92,critical,Dissolved oxygen below threshold
+Tank_A,9,7.0,DO,1.56,critical,Dissolved oxygen below threshold
+Tank_A,9,7.0,Turbidity,53.2,warning,High turbidity - water exchange triggered
+Tank_A,9,7.67,Level,0.363,warning,Water level low - refilling / check inlet
+Tank_A,9,8.0,DO,3.37,critical,Dissolved oxygen below threshold
+Tank_A,9,9.0,DO,4.86,warning,Dissolved oxygen below threshold
+Tank_A,9,21.33,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,9,23.08,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,10,4.08,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,10,7.0,DO,4.67,warning,Dissolved oxygen below threshold
+Tank_A,10,8.75,Turbidity,50.1,warning,High turbidity - water exchange triggered
+Tank_A,10,9.42,Level,0.366,warning,Water level low - refilling / check inlet
+Tank_A,11,7.0,DO,4.81,warning,Dissolved oxygen below threshold
+Tank_A,11,7.75,Turbidity,50.0,warning,High turbidity - water exchange triggered
+Tank_A,11,8.25,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,11,8.42,Level,0.37,warning,Water level low - refilling / check inlet
+Tank_A,11,23.08,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,12,5.75,DO,4.96,warning,Dissolved oxygen below threshold
+Tank_A,12,7.0,DO,4.66,warning,Dissolved oxygen below threshold
+Tank_A,12,7.0,Turbidity,50.2,warning,High turbidity - water exchange triggered
+Tank_A,12,7.67,Level,0.374,warning,Water level low - refilling / check inlet
+Tank_A,12,23.58,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_A,13,0.58,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,13,7.0,DO,4.54,warning,Dissolved oxygen below threshold
+Tank_A,13,7.0,Turbidity,58.8,warning,High turbidity - water exchange triggered
+Tank_A,13,7.58,Level,0.368,warning,Water level low - refilling / check inlet
+Tank_A,13,21.92,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,14,5.0,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_A,14,7.0,DO,4.44,warning,Dissolved oxygen below threshold
+Tank_A,14,7.0,Turbidity,55.0,warning,High turbidity - water exchange triggered
+Tank_A,14,7.67,Level,0.372,warning,Water level low - refilling / check inlet
+Tank_B,2,16.33,Temperature,30.0,warning,Temperature outside optimal band
+Tank_B,3,7.0,DO,4.76,warning,Dissolved oxygen below threshold
+Tank_B,3,7.0,Turbidity,52.7,warning,High turbidity - water exchange triggered
+Tank_B,3,7.42,Level,0.378,warning,Water level low - refilling / check inlet
+Tank_B,3,15.0,Temperature,30.01,warning,Temperature outside optimal band
+Tank_B,3,16.0,Temperature,30.03,warning,Temperature outside optimal band
+Tank_B,4,14.25,Temperature,30.04,warning,Temperature outside optimal band
+Tank_B,4,15.25,Temperature,30.1,warning,Temperature outside optimal band
+Tank_B,4,16.25,Temperature,30.02,warning,Temperature outside optimal band
+Tank_B,4,17.0,Turbidity,55.9,warning,High turbidity - water exchange triggered
+Tank_B,4,17.58,Level,0.37,warning,Water level low - refilling / check inlet
+Tank_B,5,14.17,Temperature,30.03,warning,Temperature outside optimal band
+Tank_B,5,15.17,Temperature,30.22,warning,Temperature outside optimal band
+Tank_B,5,16.17,Temperature,30.1,warning,Temperature outside optimal band
+Tank_B,5,19.0,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,5,20.0,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,5,21.58,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,6,0.42,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,6,2.83,DO,4.98,warning,Dissolved oxygen below threshold
+Tank_B,6,3.08,pH,6.49,warning,pH outside safe range
+Tank_B,6,4.08,pH,6.46,warning,pH outside safe range
+Tank_B,6,4.08,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_B,6,5.08,pH,6.4,warning,pH outside safe range
+Tank_B,6,6.08,pH,6.38,warning,pH outside safe range
+Tank_B,6,6.58,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,6,7.0,Turbidity,52.9,warning,High turbidity - water exchange triggered
+Tank_B,6,7.08,pH,6.39,warning,pH outside safe range
+Tank_B,6,7.58,DO,4.76,warning,Dissolved oxygen below threshold
+Tank_B,6,7.67,Level,0.37,warning,Water level low - refilling / check inlet
+Tank_B,6,13.42,Temperature,30.0,warning,Temperature outside optimal band
+Tank_B,6,14.42,Temperature,30.15,warning,Temperature outside optimal band
+Tank_B,6,15.42,Temperature,30.08,warning,Temperature outside optimal band
+Tank_B,6,16.42,Temperature,30.09,warning,Temperature outside optimal band
+Tank_B,7,7.0,DO,4.57,warning,Dissolved oxygen below threshold
+Tank_B,7,7.0,Turbidity,55.1,warning,High turbidity - water exchange triggered
+Tank_B,7,7.67,Level,0.374,warning,Water level low - refilling / check inlet
+Tank_B,7,13.58,Temperature,30.02,warning,Temperature outside optimal band
+Tank_B,7,14.58,Temperature,30.24,warning,Temperature outside optimal band
+Tank_B,7,15.58,Temperature,30.14,warning,Temperature outside optimal band
+Tank_B,7,16.58,Temperature,30.11,warning,Temperature outside optimal band
+Tank_B,7,20.42,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,8,6.25,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_B,8,7.0,Turbidity,53.1,warning,High turbidity - water exchange triggered
+Tank_B,8,7.25,DO,4.84,warning,Dissolved oxygen below threshold
+Tank_B,8,7.58,Level,0.368,warning,Water level low - refilling / check inlet
+Tank_B,8,13.08,Temperature,30.01,warning,Temperature outside optimal band
+Tank_B,8,14.08,Temperature,30.23,warning,Temperature outside optimal band
+Tank_B,8,15.08,Temperature,30.33,warning,Temperature outside optimal band
+Tank_B,8,16.08,Temperature,30.35,warning,Temperature outside optimal band
+Tank_B,8,17.08,Temperature,30.08,warning,Temperature outside optimal band
+Tank_B,9,4.0,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,9,7.0,DO,4.51,warning,Dissolved oxygen below threshold
+Tank_B,9,7.0,Turbidity,57.9,warning,High turbidity - water exchange triggered
+Tank_B,9,7.67,Level,0.372,warning,Water level low - refilling / check inlet
+Tank_B,9,13.25,Temperature,30.03,warning,Temperature outside optimal band
+Tank_B,9,14.25,Temperature,30.19,warning,Temperature outside optimal band
+Tank_B,9,15.25,Temperature,30.48,warning,Temperature outside optimal band
+Tank_B,9,16.25,Temperature,30.47,warning,Temperature outside optimal band
+Tank_B,9,17.25,Temperature,30.13,warning,Temperature outside optimal band
+Tank_B,10,5.83,Turbidity,50.1,warning,High turbidity - water exchange triggered
+Tank_B,10,6.5,Level,0.376,warning,Water level low - refilling / check inlet
+Tank_B,10,12.67,Temperature,30.0,warning,Temperature outside optimal band
+Tank_B,10,13.67,Temperature,30.19,warning,Temperature outside optimal band
+Tank_B,10,14.67,Temperature,30.37,warning,Temperature outside optimal band
+Tank_B,10,15.67,Temperature,30.36,warning,Temperature outside optimal band
+Tank_B,10,16.67,Temperature,30.31,warning,Temperature outside optimal band
+Tank_B,10,17.0,Turbidity,56.3,warning,High turbidity - water exchange triggered
+Tank_B,10,17.58,Level,0.373,warning,Water level low - refilling / check inlet
+Tank_B,10,17.67,Temperature,30.07,warning,Temperature outside optimal band
+Tank_B,11,4.75,pH,6.49,warning,pH outside safe range
+Tank_B,11,5.33,DO,4.97,warning,Dissolved oxygen below threshold
+Tank_B,11,5.75,pH,6.49,warning,pH outside safe range
+Tank_B,11,6.75,pH,6.48,warning,pH outside safe range
+Tank_B,11,7.0,DO,4.53,warning,Dissolved oxygen below threshold
+Tank_B,11,7.0,Turbidity,54.3,warning,High turbidity - water exchange triggered
+Tank_B,11,7.58,Level,0.37,warning,Water level low - refilling / check inlet
+Tank_B,11,13.0,Temperature,30.01,warning,Temperature outside optimal band
+Tank_B,11,14.0,Temperature,30.32,warning,Temperature outside optimal band
+Tank_B,11,15.0,Temperature,30.5,warning,Temperature outside optimal band
+Tank_B,11,16.0,Temperature,30.42,warning,Temperature outside optimal band
+Tank_B,11,17.0,Temperature,30.22,warning,Temperature outside optimal band
+Tank_B,12,0.58,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,12,7.0,DO,4.48,warning,Dissolved oxygen below threshold
+Tank_B,12,7.0,Turbidity,57.2,warning,High turbidity - water exchange triggered
+Tank_B,12,7.67,Level,0.374,warning,Water level low - refilling / check inlet
+Tank_B,12,8.0,Fault,0.0,critical,Inlet pump failure detected on Tank_B
+Tank_B,12,8.67,Level,0.343,warning,Water level low - refilling / check inlet
+Tank_B,12,9.67,Level,0.342,warning,Water level low - refilling / check inlet
+Tank_B,12,10.67,Level,0.342,warning,Water level low - refilling / check inlet
+Tank_B,12,11.67,Level,0.342,warning,Water level low - refilling / check inlet
+Tank_B,12,12.58,Temperature,30.01,warning,Temperature outside optimal band
+Tank_B,12,12.67,Level,0.342,warning,Water level low - refilling / check inlet
+Tank_B,12,12.75,Turbidity,50.6,warning,High turbidity - water exchange triggered
+Tank_B,12,13.58,Temperature,30.32,warning,Temperature outside optimal band
+Tank_B,12,14.58,Temperature,30.42,warning,Temperature outside optimal band
+Tank_B,12,15.58,Temperature,30.51,warning,Temperature outside optimal band
+Tank_B,12,16.58,Temperature,30.47,warning,Temperature outside optimal band
+Tank_B,12,17.58,Temperature,30.16,warning,Temperature outside optimal band
+Tank_B,12,23.42,DO,4.98,warning,Dissolved oxygen below threshold
+Tank_B,13,0.67,DO,4.99,warning,Dissolved oxygen below threshold
+Tank_B,13,1.17,Turbidity,50.2,warning,High turbidity - water exchange triggered
+Tank_B,13,1.83,Level,0.348,warning,Water level low - refilling / check inlet
+Tank_B,13,7.0,DO,4.85,warning,Dissolved oxygen below threshold
+Tank_B,13,12.67,Temperature,30.01,warning,Temperature outside optimal band
+Tank_B,13,13.67,Temperature,30.51,warning,Temperature outside optimal band
+Tank_B,13,14.67,Temperature,30.48,warning,Temperature outside optimal band
+Tank_B,13,15.67,Temperature,30.56,warning,Temperature outside optimal band
+Tank_B,13,16.67,Temperature,30.47,warning,Temperature outside optimal band
+Tank_B,13,16.92,Turbidity,50.1,warning,High turbidity - water exchange triggered
+Tank_B,13,17.0,DO,4.78,warning,Dissolved oxygen below threshold
+Tank_B,13,17.58,Level,0.353,warning,Water level low - refilling / check inlet
+Tank_B,13,17.67,Temperature,30.14,warning,Temperature outside optimal band
+Tank_B,14,0.25,DO,4.97,warning,Dissolved oxygen below threshold
+Tank_B,14,1.75,DO,5.0,warning,Dissolved oxygen below threshold
+Tank_B,14,4.92,pH,6.49,warning,pH outside safe range
+Tank_B,14,5.92,pH,6.49,warning,pH outside safe range
+Tank_B,14,6.92,pH,6.46,warning,pH outside safe range
+Tank_B,14,7.0,DO,4.47,warning,Dissolved oxygen below threshold
+Tank_B,14,7.0,Turbidity,57.1,warning,High turbidity - water exchange triggered
+Tank_B,14,7.67,Level,0.359,warning,Water level low - refilling / check inlet
+Tank_B,14,12.5,Temperature,30.06,warning,Temperature outside optimal band
+Tank_B,14,13.5,Temperature,30.34,warning,Temperature outside optimal band
+Tank_B,14,14.5,Temperature,30.67,warning,Temperature outside optimal band
+Tank_B,14,15.5,Temperature,30.57,warning,Temperature outside optimal band
+Tank_B,14,16.5,Temperature,30.61,warning,Temperature outside optimal band
+Tank_B,14,17.0,Turbidity,52.2,warning,High turbidity - water exchange triggered
+Tank_B,14,17.5,Temperature,30.28,warning,Temperature outside optimal band
+Tank_B,14,17.67,Level,0.366,warning,Water level low - refilling / check inlet

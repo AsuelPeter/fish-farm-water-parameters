@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Farm IoT - Water Regulation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f7fa; color: #333; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: #fff; border-right: 1px solid #e0e0e0; padding: 20px; z-index: 10; }
+        .sidebar h2 { color: #1976d2; font-size: 18px; margin-bottom: 5px; }
+        .sidebar p { color: #888; font-size: 12px; margin-bottom: 30px; }
+        .nav-item { display: flex; align-items: center; padding: 12px 16px; border-radius: 8px; cursor: pointer; margin-bottom: 4px; transition: all 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #1976d2; color: #fff; }
+        .nav-item i { margin-right: 12px; font-size: 20px; }
+        .main { margin-left: 260px; padding: 20px 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header h1 { font-size: 24px; font-weight: 700; }
+        .status-bar { display: flex; gap: 12px; align-items: center; }
+        .status-chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid; }
+        .online { color: #2e7d32; border-color: #2e7d32; background: #e8f5e9; }
+        .sensors-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 30px; }
+        .sensor-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .sensor-card .label { font-size: 12px; color: #888; margin-bottom: 8px; }
+        .sensor-card .value { font-size: 28px; font-weight: 700; }
+        .sensor-card .unit { font-size: 12px; color: #888; margin-top: 4px; }
+        .sensor-card .status { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; margin-top: 8px; }
+        .status-ok { background: #e8f5e9; color: #2e7d32; }
+        .status-warn { background: #fff3e0; color: #f57c00; }
+        .status-crit { background: #ffebee; color: #d32f2f; }
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 30px; }
+        .chart-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .chart-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+        .alerts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+        .alert-item { display: flex; align-items: center; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; }
+        .alert-crit { background: #ffebee; border-left: 4px solid #d32f2f; }
+        .alert-warn { background: #fff3e0; border-left: 4px solid #f57c00; }
+        .alert-info { background: #e3f2fd; border-left: 4px solid #1976d2; }
+        .actuator-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .actuator-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+        .actuator-card .icon { font-size: 32px; margin-bottom: 8px; }
+        .toggle { width: 50px; height: 26px; border-radius: 13px; background: #ccc; position: relative; cursor: pointer; margin: 8px auto; transition: 0.3s; }
+        .toggle.on { background: #1976d2; }
+        .toggle::after { content: ''; width: 22px; height: 22px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s; }
+        .toggle.on::after { left: 26px; }
+        @media (max-width: 1200px) { .sensors-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .sensors-grid { grid-template-columns: repeat(2, 1fr); } .charts-row, .alerts-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>🐟 Fish Farm</h2>
+        <p>IoT Monitoring System</p>
+        <div class="nav-item active"><i class="material-icons">dashboard</i>Dashboard</div>
+        <div class="nav-item"><i class="material-icons">sensors</i>Sensors</div>
+        <div class="nav-item"><i class="material-icons">notifications</i>Alerts</div>
+        <div class="nav-item"><i class="material-icons">settings</i>Settings</div>
+        <div style="position:absolute;bottom:20px;left:20px;color:#aaa;font-size:11px;">v1.0.0</div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p style="color:#888;font-size:13px;">Real-time water quality monitoring for pond_001</p>
+            </div>
+            <div class="status-bar">
+                <div class="status-chip online">● Connected</div>
+                <div class="status-chip" style="color:#1976d2;border-color:#1976d2;background:#e3f2fd;">Pond: pond_001</div>
+                <div class="status-chip" style="color:#2e7d32;border-color:#2e7d32;background:#e8f5e9;">pH: 7.2</div>
+                <div class="status-chip" style="color:#2e7d32;border-color:#2e7d32;background:#e8f5e9;">DO: 6.8 mg/L</div>
+                <div class="status-chip" style="color:#2e7d32;border-color:#2e7d32;background:#e8f5e9;">Temp: 27.5°C</div>
+            </div>
+        </div>
+
+        <div class="sensors-grid">
+            <div class="sensor-card">
+                <div class="label">pH Level</div>
+                <div class="value" style="color:#2e7d32;">7.24</div>
+                <div class="unit">pH</div>
+                <span class="status status-ok">Normal</span>
+            </div>
+            <div class="sensor-card">
+                <div class="label">Dissolved Oxygen</div>
+                <div class="value" style="color:#2e7d32;">6.82</div>
+                <div class="unit">mg/L</div>
+                <span class="status status-ok">Normal</span>
+            </div>
+            <div class="sensor-card">
+                <div class="label">Temperature</div>
+                <div class="value" style="color:#2e7d32;">27.5</div>
+                <div class="unit">°C</div>
+                <span class="status status-ok">Normal</span>
+            </div>
+            <div class="sensor-card">
+                <div class="label">Turbidity</div>
+                <div class="value" style="color:#f57c00;">38.2</div>
+                <div class="unit">NTU</div>
+                <span class="status status-warn">Moderate</span>
+            </div>
+            <div class="sensor-card">
+                <div class="label">Water Level</div>
+                <div class="value" style="color:#2e7d32;">0.85</div>
+                <div class="unit">meters</div>
+                <span class="status status-ok">Normal</span>
+            </div>
+            <div class="sensor-card">
+                <div class="label">Flow Rate</div>
+                <div class="value" style="color:#1976d2;">12.4</div>
+                <div class="unit">L/min</div>
+                <span class="status status-ok">Active</span>
+            </div>
+        </div>
+
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>Water Parameters (Last 24 Hours)</h3>
+                <canvas id="mainChart" height="120"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Alert Distribution</h3>
+                <canvas id="alertChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="alerts-row">
+            <div class="chart-card">
+                <h3>Recent Alerts</h3>
+                <div class="alert-item alert-crit">
+                    <i class="material-icons" style="color:#d32f2f;margin-right:12px;">error</i>
+                    <div>
+                        <strong>DO_LOW</strong> - Dissolved oxygen critically low: 4.2 mg/L
+                        <br><small style="color:#888;">2 minutes ago</small>
+                    </div>
+                </div>
+                <div class="alert-item alert-warn">
+                    <i class="material-icons" style="color:#f57c00;margin-right:12px;">warning</i>
+                    <div>
+                        <strong>TURBIDITY_HIGH</strong> - Turbidity above threshold: 65 NTU
+                        <br><small style="color:#888;">15 minutes ago</small>
+                    </div>
+                </div>
+                <div class="alert-item alert-info">
+                    <i class="material-icons" style="color:#1976d2;margin-right:12px;">info</i>
+                    <div>
+                        <strong>SYSTEM</strong> - Aerator automatically activated
+                        <br><small style="color:#888;">15 minutes ago</small>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Actuator Status</h3>
+                <div class="actuator-grid">
+                    <div class="actuator-card">
+                        <div class="icon">💧</div>
+                        <div style="font-size:13px;font-weight:600;">Water Pump</div>
+                        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="actuator-card">
+                        <div class="icon">🫧</div>
+                        <div style="font-size:13px;font-weight:600;">Aerator</div>
+                        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="actuator-card">
+                        <div class="icon">🌡️</div>
+                        <div style="font-size:13px;font-weight:600;">Heater</div>
+                        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="actuator-card">
+                        <div class="icon">🚰</div>
+                        <div style="font-size:13px;font-weight:600;">Inlet Valve</div>
+                        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="actuator-card">
+                        <div class="icon">🔽</div>
+                        <div style="font-size:13px;font-weight:600;">Drain Valve</div>
+                        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                    <div class="actuator-card">
+                        <div class="icon">🐟</div>
+                        <div style="font-size:13px;font-weight:600;">Feeder</div>
+                        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate mock time-series data
+        const labels = [];
+        const phData = [], doData = [], tempData = [];
+        for (let i = 24; i >= 0; i--) {
+            const h = new Date();
+            h.setHours(h.getHours() - i);
+            labels.push(h.getHours() + ':00');
+            phData.push(6.8 + Math.random() * 1.2);
+            doData.push(5.5 + Math.random() * 2.5);
+            tempData.push(25 + Math.random() * 5);
+        }
+
+        // Main line chart
+        new Chart(document.getElementById('mainChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'pH', data: phData, borderColor: '#1976d2', backgroundColor: '#1976d220', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                    { label: 'Dissolved O₂', data: doData, borderColor: '#00897b', backgroundColor: '#00897b20', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                    { label: 'Temperature', data: tempData, borderColor: '#f57c00', backgroundColor: '#f57c0020', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+                ]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.05)' } } } }
+        });
+
+        // Alert doughnut chart
+        new Chart(document.getElementById('alertChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['pH Warning', 'DO Critical', 'Temp Alert', 'Turbidity', 'Level Alert'],
+                datasets: [{ data: [12, 8, 5, 3, 2], backgroundColor: ['#ffc107', '#d32f2f', '#ff9800', '#2196f3', '#9c27b0'], borderWidth: 0 }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } }, cutout: '65%' }
+        });
+    </script>
+</body>
+</html>

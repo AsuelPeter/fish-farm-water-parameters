@@ -1,31 +1,21 @@
 {
   "name": "fish-farm-backend",
   "version": "1.0.0",
-  "description": "IoT-Based Automated Water Regulation for Fish Farming - Backend Server",
+  "description": "IoT-Based Automated Water Regulation for Fish Farming - Backend",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "jest --coverage",
-    "seed": "node src/services/seedData.js"
+    "dev": "node src/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
     "helmet": "^7.1.0",
-    "influxdb-client": "^1.33.1",
     "mongoose": "^8.0.3",
     "mqtt": "^5.3.4",
-    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
     "socket.io": "^4.7.2",
-    "twilio": "^4.20.0",
     "winston": "^3.11.0"
-  },
-  "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.0.2"
   }
 }

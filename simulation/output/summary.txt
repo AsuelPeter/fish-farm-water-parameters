@@ -1,0 +1,26 @@
+==================================================================
+ TWO-WEEK SIMULATION RESULTS - IoT WATER REGULATION SYSTEM
+==================================================================
+Simulation period      : 14 days
+Sampling interval      : 5 minutes
+Total readings         : 8064
+Tanks                  : Tank_A, Tank_B (1000.0 L each)
+Total alerts generated : 189
+Alerts by severity     : {'warning': 181, 'critical': 8}
+Alerts by parameter    : {'Temperature': 56, 'DO': 51, 'pH': 28, 'Level': 28, 'Turbidity': 24, 'Fault': 2}
+
+--- Tank_A ---
+  Mean pH 7.045 | Mean DO 5.688 mg/L | Mean Temp 26.705 C
+  Mean turbidity 39.44 NTU | Mean level 0.756 m
+  % within safe range: {'ph': 95.49, 'do': 96.33, 'temperature': 100.0, 'turbidity': 98.29, 'level': 99.78}
+  Actuator hours: {'inlet_pump': 5.08, 'drain_pump': 5.58, 'aerator': 55.83, 'heater': 1.92, 'feeder': 2.34}
+
+--- Tank_B ---
+  Mean pH 7.069 | Mean DO 5.626 mg/L | Mean Temp 27.897 C
+  Mean turbidity 41.32 NTU | Mean level 0.748 m
+  % within safe range: {'ph': 96.95, 'do': 97.17, 'temperature': 86.06, 'turbidity': 96.97, 'level': 98.16}
+  Actuator hours: {'inlet_pump': 8.08, 'drain_pump': 8.75, 'aerator': 69.83, 'heater': 0.0, 'feeder': 2.34}
+
+Automated safe-range compliance : 95.33 %
+Manual baseline (literature)    : 68.0 %
+Improvement                     : +27.33 points

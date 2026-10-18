@@ -9,6 +9,14 @@
 
 An intelligent IoT-based system for automated water quality monitoring and regulation in fish farming operations. The system provides real-time sensor data acquisition, automated actuator control, cloud-based data storage, and a web dashboard for remote monitoring and management.
 
+## Live Demo
+
+The dashboard is deployed on Vercel and runs a self-contained replay of the two-week (14-day) simulation, so it is fully interactive without a backend:
+
+- **https://fish-farm-iot.vercel.app**
+
+Switch between the two 1000-litre tanks (Pond A / Pond B) from the header, watch live readings in real time, view charts and alerts, and toggle actuators manually.
+
 ## System Architecture
 
 ```
@@ -61,6 +69,14 @@ fish-farm-iot/
 ├── firmware/              # ESP32 Arduino firmware
 │   ├── src/main.cpp       # Main firmware code
 │   └── platformio.ini     # PlatformIO configuration
+├── simulation/            # Two-week (14-day) simulation
+│   ├── simulate.py        # Closed-loop control + pond model
+│   ├── export_web_data.py # Exports dataset for the dashboard
+│   ├── data/              # Time-series, daily, actuator & alert CSVs
+│   ├── charts/            # Figures used in the thesis
+│   └── output/            # summary.json / summary.txt
+├── papers/                # 24 reviewed open-access papers (PDF + BibTeX)
+├── reports/               # Thesis (chimanuel.docx/.odt/.pdf) + generator
 ├── backend/               # Node.js backend server
 │   └── src/
 │       ├── server.js      # Express server entry point
@@ -163,21 +179,73 @@ influxd
 | Solenoid Valves | 12V NC | 2 | $15 |
 | Power Supply | 12V 5A | 1 | $8 |
 
+## Two-Week Simulation
+
+A fourteen-day (two-week) discrete-time simulation of the closed-loop system for two 1000-litre tanks is provided in `simulation/`. It models temperature, dissolved oxygen, pH, turbidity and water level at 5-minute resolution (8,064 samples), runs the same rule-based control logic as the firmware, and injects two actuator-fault scenarios to validate the alert subsystem.
+
+```bash
+cd simulation
+python3 simulate.py          # run simulation, write CSVs + charts + summary
+python3 export_web_data.py   # export dataset to frontend/src/data/simulation.json
+```
+
+### Key results (14 days)
+
+| Metric | Manual baseline | Automated system |
+|--------|-----------------|------------------|
+| pH within safe range | 82 % | ~96 % |
+| Dissolved oxygen ≥ 5 mg/L | 77 % | ~97 % |
+| Temperature 24–30 °C | 90 % | ~93 % |
+| Overall compliance | 68 % | **95.3 %** |
+| Manual interventions/day | ≈ 6 | 0 |
+
+189 alerts (181 warning, 8 critical) were generated after debouncing; both injected faults were detected and notified within one sampling cycle.
+
+## Documentation & Thesis
+
+The complete thesis is provided in `reports/` and at the repository root:
+
+- `chimanuel.docx` – editable Word document
+- `chimanuel.odt` – OpenDocument text
+- `chimanuel.pdf` – 32-page A4 PDF
+
+Regenerate with:
+
+```bash
+python3 reports/generate_thesis.py
+libreoffice --headless --convert-to pdf --outdir reports reports/chimanuel.docx
+libreoffice --headless --convert-to odt --outdir reports reports/chimanuel.docx
+```
+
+## Research Papers
+
+`papers/` contains **24 open-access peer-reviewed papers** on IoT-based water-quality monitoring and aquaculture automation, downloaded with `papers/download_papers.py` (OpenAlex API). Metadata is in `papers/papers.json`, citations in `papers/references.bib` / `papers/references.md`, and the PDFs in `papers/pdf/`.
+
+## Configuration
+
+The dashboard runs in demo mode by default (bundled simulation). To connect it to the live backend, create `frontend/.env`:
+
+```
+VITE_DEMO_MODE=false
+VITE_API_URL=https://your-backend.example.com/api
+VITE_SOCKET_URL=https://your-backend.example.com
+```
+
 ## Deployment
 
-### Frontend (Vercel)
+### Frontend (Vercel) — deployed
 
 ```bash
 cd frontend
-npm run build
-vercel deploy --prod
+npm install
+vercel --prod        # https://fish-farm-iot.vercel.app
 ```
 
 ### Backend (Railway/Render)
 
 ```bash
 cd backend
-# Push to GitHub and connect to Railway/Render
+# Push to GitHub and connect to Railway/Render, then set MQTT/DB env vars
 ```
 
 ## UML Diagrams
@@ -189,6 +257,29 @@ UML diagrams are in the `uml/` directory in PlantUML format:
 - `component-diagram.puml` - Component architecture
 - `deployment-diagram.puml` - Deployment topology
 - `activity-diagram.puml` - Control flow activities
+
+Rendered PNG and SVG versions are included in `uml/png/` and `uml/svg/`, and
+the use-case, sequence, class, component, deployment and activity diagrams are
+embedded in Chapter Three of the thesis.
+
+### Rendering the diagrams
+
+The diagrams are rendered with PlantUML (requires Java). The build uses a
+user-local install (no root required) at `~/.local/opt/jdk` and
+`~/.local/opt/plantuml` with launchers in `~/.local/bin`:
+
+```bash
+# install Java (JRE 21) + PlantUML into ~/.local
+curl -sL "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jre/hotspot/normal/eclipse" -o /tmp/jre.tar.gz
+mkdir -p ~/.local/opt/jdk && tar -xzf /tmp/jre.tar.gz -C ~/.local/opt/jdk --strip-components=1
+mkdir -p ~/.local/opt/plantuml && curl -sL \
+  "https://github.com/plantuml/plantuml/releases/download/v1.2026.8/plantuml.jar" \
+  -o ~/.local/opt/plantuml/plantuml.jar
+
+# render all diagrams (PNG + SVG)
+plantuml -charset UTF-8 -tpng -o png uml/*.puml
+plantuml -charset UTF-8 -tsvg -o svg uml/*.puml
+```
 
 ## License
 
