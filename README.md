@@ -21,8 +21,8 @@ Switch between the two 1000-litre tanks (Pond A / Pond B) from the header, watch
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Presentation Layer                        │
-│              React Dashboard (Vercel-hosted)                 │
+│                    Presentation Layer                       │
+│                   React Dashboard                           │
 │    ┌──────────┬──────────┬──────────┬──────────┐            │
 │    │Dashboard │ Sensors  │ Alerts   │ Settings │            │
 │    └──────────┴──────────┴──────────┴──────────┘            │
